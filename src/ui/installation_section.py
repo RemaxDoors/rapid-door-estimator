@@ -14,11 +14,7 @@ def render_installation_section(Data_Mapping: dict, door_height, door_width):
                 "Job Type", "CMBJOBTYPE", Data_Mapping,key="CMBJOBTYPE",
                  default_label=st.session_state.get("CMBJOBTYPE", ""),
             )
-            if jobtype_label == "Install":
-                CHKINSAH = 1
-            else:
-                CHKINSAH = 0
-            
+
             ch1, ch2, ch3 = st.columns(3)
             with ch1:
                 CHKLIFTINGFRAME = int(st.checkbox("Lifting Frame Required?", value=bool(st.session_state.get("CHKLIFTINGFRAME", 0)), key="CHKLIFTINGFRAME"))
@@ -31,18 +27,20 @@ def render_installation_section(Data_Mapping: dict, door_height, door_width):
                 CHKINSAH = int(st.checkbox("After Hours?", value=bool(st.session_state.get("CHKINSAH", 0)), key="CHKINSAH"))
                 CHKRETURNTRIP = int(st.checkbox("Return Trip for connect + commision", value=bool(st.session_state.get("CHKRETURNTRIP", 0)), key="CHKRETURNTRIP"))
             with ch3:    
-                CHKINSRRD4X4 = int(st.checkbox("Rapid Door Installation - Up to 4x4", value=bool(st.session_state.get("CHKINSRRD4X4", 0)), key="CHKINSRRD4X4"))
-                CHKINSRRD6X6 = int(st.checkbox("Rapid Door Installation - Above 4x4", value=bool(st.session_state.get("CHKINSRRD6X6", 0)), key="CHKINSRRD6X6"))
+                if st.session_state.get("CMBJOBTYPE") != "" and jobtype_label == "Install":
+                    if door_height <= 4000 and door_width <= 4000:
+                        st.session_state["CHKINSRRD4X4"] = 1
+                        st.session_state["CHKINSRRD6X6"] = 0
+                    else:
+                        st.session_state["CHKINSRRD4X4"] = 0
+                        st.session_state["CHKINSRRD6X6"] = 1
+            
+                CHKINSRRD4X4 = int(st.checkbox("Rapid Door Installation - Up to 4x4",value=bool(st.session_state.get("CHKINSHSDFOLDING")), key="CHKINSRRD4X4"))
+                CHKINSRRD6X6 = int(st.checkbox("Rapid Door Installation - Above 4x4",value=bool(st.session_state.get("CHKINSHSDFOLDING")), key="CHKINSRRD6X6"))
                 CHKINSHSDFOLDING = int(st.checkbox("Concertina/Movifold Door Installation", value=bool(st.session_state.get("CHKINSHSDFOLDING", 0)), key="CHKINSHSDFOLDING"))
                 CHKLABRRDREMOVAL = int(st.checkbox("Removal of existing Rapid Door", value=bool(st.session_state.get("CHKLABRRDREMOVAL", 0)), key="CHKLABRRDREMOVAL"))
                 CHKLABRRDDISPOSAL = int(st.checkbox("Disposal of existing Rapid Door", value=bool(st.session_state.get("CHKLABRRDDISPOSAL", 0)), key="CHKLABRRDDISPOSAL"))
-                if door_height <= 4000 and door_width <= 4000:
-                    CHKINSRRD4X4 = 1
-                    CHKINSRRD6X6 = 0
-                else:
-                    CHKINSRRD4X4 = 0
-                    CHKINSRRD6X6 = 1
-            
+                
             fr1, fr2, fr3,fr4 = st.columns(4, vertical_alignment="bottom")
 
             with fr1:
@@ -103,7 +101,7 @@ def render_installation_section(Data_Mapping: dict, door_height, door_width):
             )
             
             if NUMACCOMNIGHT >= 1:
-                CHKACCOM = 1
+                st.session_state["CHKACCOM"] = 1
 
             NUMPERSONINSTALL = st.number_input(
                 "Number of People on Install",
