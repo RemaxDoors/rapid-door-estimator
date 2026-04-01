@@ -56,7 +56,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: python-app
-      
+      # --- ADD THIS NEW STEP BELOW ---
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Whitelist GitHub Runner IP
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            IP=$(curl -s https://api.ipify.org)
+            az webapp config access-restriction add -g <YOUR_RESOURCE_GROUP> -n rapid-door-estimator --rule-name "GitHub-Deploy" --action Allow --ip-address $IP/32 --priority 100 --scm-site true
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -64,3 +75,11 @@ jobs:
           app-name: 'rapid-door-estimator'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DC0428845DAE4AA09C281A6EFE6B7283 }}
+
+        # --- CLEANUP STEP ---
+      - name: Remove IP Whitelist
+        if: always()
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az webapp config access-restriction remove -g <YOUR_RESOURCE_GROUP> -n rapid-door-estimator --rule-name "GitHub-Deploy" --scm-site true
