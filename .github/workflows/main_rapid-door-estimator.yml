@@ -56,11 +56,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: python-app
-      # --- ADD THIS NEW STEP BELOW ---
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Whitelist GitHub Runner IP
         uses: azure/CLI@v1
