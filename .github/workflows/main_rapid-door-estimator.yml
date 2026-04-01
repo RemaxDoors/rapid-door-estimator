@@ -46,7 +46,6 @@ jobs:
       # 1. Remove the SCM_DO_BUILD_DURING_DEPLOYMENT app setting from your Azure App Service Environment variables.
       # 2. Refer to sample workflows for alternative deployment strategies: https://github.com/Azure/actions-workflow-samples/tree/master/AppService
       
-
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -57,12 +56,6 @@ jobs:
         with:
           name: python-app
 
-      - name: Whitelist GitHub Runner IP
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            IP=$(curl -s https://api.ipify.org)
-            az webapp config access-restriction add -g <YOUR_RESOURCE_GROUP> -n rapid-door-estimator --rule-name "GitHub-Deploy" --action Allow --ip-address $IP/32 --priority 100 --scm-site true
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -70,11 +63,3 @@ jobs:
           app-name: 'rapid-door-estimator'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DC0428845DAE4AA09C281A6EFE6B7283 }}
-
-        # --- CLEANUP STEP ---
-      - name: Remove IP Whitelist
-        if: always()
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az webapp config access-restriction remove -g <YOUR_RESOURCE_GROUP> -n rapid-door-estimator --rule-name "GitHub-Deploy" --scm-site true
