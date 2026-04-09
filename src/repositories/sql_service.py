@@ -13,6 +13,7 @@ def get_engine():
         f"UID={DB_USER};"
         f"PWD={DB_PASSWORD};"
         "TrustServerCertificate=yes;"
+        "Encrypt=no;"
     )
 
     engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
